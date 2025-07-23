@@ -6,16 +6,23 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@coinbase/onchainkit": "latest",
     "@farcaster/frame-sdk": "^0.0.60",
+    "@heroicons/react": "^2.2.0",
+    "@prisma/client": "^6.12.0",
+    "@tanstack/react-query": "^5",
     "@upstash/redis": "^1.34.4",
     "next": "^15.3.3",
+    "prisma": "^6.12.0",
     "react": "^18",
     "react-dom": "^18",
-    "@tanstack/react-query": "^5",
     "viem": "^2.27.2",
     "wagmi": "^2.14.11"
   },
@@ -29,9 +36,10 @@
     "eslint-plugin-prettier": "^5.2.3",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "prettier": "^3.5.3",
     "postcss": "^8",
+    "prettier": "^3.5.3",
     "tailwindcss": "^3.4.1",
+    "tsx": "^4.20.3",
     "typescript": "^5"
   }
 }
