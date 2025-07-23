@@ -23,11 +23,12 @@ import { Button } from "./components/DemoComponents";
 import { Icon } from "./components/DemoComponents";
 import { Home } from "./components/DemoComponents";
 import { Features } from "./components/DemoComponents";
+import LandingPage from "./components/LandingPage";
 
 export default function App() {
   const { setFrameReady, isFrameReady, context } = useMiniKit();
   const [frameAdded, setFrameAdded] = useState(false);
-  const [activeTab, setActiveTab] = useState("home");
+  const [activeTab, setActiveTab] = useState("landing");
 
   const addFrame = useAddFrame();
   const openUrl = useOpenUrl();
@@ -69,6 +70,11 @@ export default function App() {
 
     return null;
   }, [context, frameAdded, handleAddFrame]);
+
+  // Show landing page by default
+  if (activeTab === "landing") {
+    return <LandingPage />;
+  }
 
   return (
     <div className="flex flex-col min-h-screen font-sans text-[var(--app-foreground)] mini-app-theme from-[var(--app-background)] to-[var(--app-gray)]">

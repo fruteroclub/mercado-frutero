@@ -1,0 +1,171 @@
+// Prisma schema for kiwik MVP - Hackathon version
+// Optimized for rapid development and core features
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// User base model
+model User {
+  id             String   @id @default(cuid())
+  walletAddress  String   @unique @map("wallet_address")
+  username       String?  @unique
+  avatarUrl      String?  @map("avatar_url")
+  role           UserRole @default(COMMUNITY)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  builderProfile BuilderProfile?
+  follows        Follow[]
+  reactions      Reaction[]
+  comments       Comment[]
+
+  @@map("users")
+}
+
+// Builder profile extension
+model BuilderProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique @map("user_id")
+  fullName  String   @map("full_name")
+  bio       String?
+  twitter   String?
+  location  String?
+  skills    String[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projects Project[]
+
+  @@map("builder_profiles")
+}
+
+// Projects model
+model Project {
+  id            String        @id @default(cuid())
+  builderId     String        @map("builder_id")
+  name          String
+  tagline       String
+  problem       String
+  solution      String
+  targetMarket  String?       @map("target_market")
+  timelineWeeks Int           @default(8) @map("timeline_weeks")
+  status        ProjectStatus @default(ACTIVE)
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  builder   BuilderProfile @relation(fields: [builderId], references: [id], onDelete: Cascade)
+  updates   WeeklyUpdate[]
+  follows   Follow[]
+  reactions Reaction[]
+  comments  Comment[]
+
+  @@map("projects")
+}
+
+// Weekly updates
+model WeeklyUpdate {
+  id           String   @id @default(cuid())
+  projectId    String   @map("project_id")
+  weekNumber   Int      @map("week_number")
+  content      String
+  achievements String[]
+  challenges   String[]
+  nextWeekGoals String[] @map("next_week_goals")
+  mediaUrls    String[] @map("media_urls")
+  metrics      Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relations
+  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  reactions Reaction[]
+  comments  Comment[]
+
+  @@unique([projectId, weekNumber])
+  @@map("weekly_updates")
+}
+
+// Follow relationships
+model Follow {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  projectId String   @map("project_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+  @@map("follows")
+}
+
+// Reactions (likes, hearts, etc.)
+model Reaction {
+  id             String        @id @default(cuid())
+  userId         String        @map("user_id")
+  projectId      String?       @map("project_id")
+  weeklyUpdateId String?       @map("weekly_update_id")
+  type           ReactionType
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  // Relations
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project      Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  weeklyUpdate WeeklyUpdate? @relation(fields: [weeklyUpdateId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId, type])
+  @@unique([userId, weeklyUpdateId, type])
+  @@map("reactions")
+}
+
+// Comments
+model Comment {
+  id             String   @id @default(cuid())
+  userId         String   @map("user_id")
+  projectId      String?  @map("project_id")
+  weeklyUpdateId String?  @map("weekly_update_id")
+  content        String
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project      Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  weeklyUpdate WeeklyUpdate? @relation(fields: [weeklyUpdateId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+// Enums
+enum UserRole {
+  BUILDER
+  COMMUNITY
+  MENTOR
+}
+
+enum ProjectStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
+  CANCELLED
+}
+
+enum ReactionType {
+  LIKE
+  HEART
+  FIRE
+  CLAP
+  THINKING
+}
