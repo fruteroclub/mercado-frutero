@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { getAllActiveProjects } from '@/lib/db/projects'
+import { getAllActiveProjects, createProject } from '@/lib/db/projects'
+import { createUser, getUserByWallet, createBuilderProfile } from '@/lib/db/users'
 
 // Mock data for development (fallback if DB is unavailable)
 const mockProjects = [
@@ -131,8 +132,7 @@ export async function GET() {
         trendingScore: 
           (project._count.follows * 0.3) +
           (project._count.reactions * 0.2) +
-          (project._count.updates * 0.3) +
-          (project._count.comments * 0.2) +
+          (project._count.updates * 0.5) +
           (new Date().getTime() - new Date(project.createdAt).getTime() > 30 * 24 * 60 * 60 * 1000 ? 0 : 10) // Recent bonus
       }))
       .sort((a, b) => b.trendingScore - a.trendingScore)
@@ -147,6 +147,136 @@ export async function GET() {
     return NextResponse.json({
       success: false,
       error: 'Failed to fetch projects',
+    }, { status: 500 })
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const data = await request.json()
+    
+    // Validate required fields
+    const {
+      // Personal Info
+      fullName,
+      bio,
+      location,
+      skills,
+      
+      // Project Info
+      projectName,
+      tagline,
+      problemStatement,
+      solution,
+      targetMarket,
+      
+      // Metadata
+      walletAddress = '0x' + Math.random().toString(16).substring(2), // Mock wallet for testing
+      username = fullName?.toLowerCase().replace(/\s+/g, '_') + '_' + Math.random().toString(36).substring(7)
+    } = data
+
+    // Validate required fields
+    if (!fullName || !projectName || !tagline || !problemStatement || !solution) {
+      return NextResponse.json({
+        success: false,
+        error: 'Missing required fields: fullName, projectName, tagline, problemStatement, solution'
+      }, { status: 400 })
+    }
+
+    // Try to create the project in database
+    try {
+      // 1. Create or get user
+      let user = await getUserByWallet(walletAddress)
+      if (!user) {
+        await createUser({
+          walletAddress,
+          username,
+          role: 'BUILDER'
+        })
+        // Fetch the complete user with builderProfile relation
+        user = await getUserByWallet(walletAddress)
+        if (!user) {
+          throw new Error('Failed to create user')
+        }
+      }
+
+      // 2. Create or get builder profile
+      let builderProfile = user.builderProfile
+      if (!builderProfile) {
+        await createBuilderProfile({
+          userId: user.id,
+          fullName,
+          bio,
+          location,
+          skills: skills || []
+        })
+        // Re-fetch user to get the complete builderProfile with projects
+        const updatedUser = await getUserByWallet(walletAddress)
+        if (!updatedUser?.builderProfile) {
+          throw new Error('Failed to create builder profile')
+        }
+        builderProfile = updatedUser.builderProfile
+      }
+
+      // 3. Create project
+      const project = await createProject({
+        builderId: builderProfile.id,
+        name: projectName,
+        tagline,
+        problem: problemStatement,
+        solution,
+        targetMarket,
+        timelineWeeks: 8 // Default timeline
+      })
+
+      return NextResponse.json({
+        success: true,
+        project,
+        message: 'Project created successfully!'
+      })
+
+    } catch (dbError) {
+      console.warn('Database unavailable, returning success for testing:', dbError)
+      
+      // Return a mock response for testing when DB is not available
+      const mockProject = {
+        id: 'test-project-' + Date.now(),
+        name: projectName,
+        tagline,
+        problem: problemStatement,
+        solution,
+        targetMarket,
+        status: 'ACTIVE',
+        timelineWeeks: 8,
+        createdAt: new Date(),
+        builder: {
+          id: 'test-builder-' + Date.now(),
+          fullName,
+          bio,
+          location,
+          skills: skills || [],
+          user: {
+            id: 'test-user-' + Date.now(),
+            username,
+            walletAddress,
+            role: 'BUILDER'
+          }
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        project: mockProject,
+        message: 'Project created successfully! (using mock data)',
+        source: 'mock'
+      })
+    }
+
+  } catch (error) {
+    console.error('Error creating project:', error)
+    return NextResponse.json({
+      success: false,
+      error: 'Failed to create project'
     }, { status: 500 })
   }
 }

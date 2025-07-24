@@ -5,7 +5,6 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 import { useRouter } from 'next/navigation'
 
 export default function OnboardingPage() {
-  const [step, setStep] = useState(1)
   const [selectedRole, setSelectedRole] = useState<string | null>(null)
   const router = useRouter()
 
@@ -76,7 +75,7 @@ export default function OnboardingPage() {
                       Builder
                     </h3>
                     <p className="text-sm text-gray-600">
-                      I'm Building Something
+                      I&apos;m Building Something
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
                       Get accountability, support, and funding
