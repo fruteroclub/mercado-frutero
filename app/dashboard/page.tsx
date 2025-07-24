@@ -1,6 +1,3 @@
-'use client'
-
-import { useState } from 'react'
 import Link from 'next/link'
 import { 
   PlusIcon, 
@@ -13,8 +10,6 @@ import {
 } from '@heroicons/react/24/outline'
 
 export default function DashboardPage() {
-  const [weeklyUpdateDue] = useState(true)
-
   // Mock data - in real app this would come from API
   const stats = {
     followers: 12,
@@ -24,6 +19,7 @@ export default function DashboardPage() {
   }
 
   const upcomingDeadline = "Friday, July 26th"
+  const weeklyUpdateDue = true
 
   return (
     <div className="min-h-screen bg-gray-50">
