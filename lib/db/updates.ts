@@ -9,7 +9,7 @@ export async function createWeeklyUpdate(data: {
   challenges: string[]
   nextWeekGoals: string[]
   mediaUrls?: string[]
-  metrics?: any
+  metrics?: any // eslint-disable-line @typescript-eslint/no-explicit-any
 }) {
   return prisma.weeklyUpdate.create({
     data,

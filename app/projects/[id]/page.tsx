@@ -1,4 +1,10 @@
-export default function ProjectPage({ params }: { params: { id: string } }) {
+export default async function ProjectPage({ 
+  params 
+}: { 
+  params: Promise<{ id: string }> 
+}) {
+  const { id } = await params
+  
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto">
@@ -8,7 +14,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         
         <div className="bg-white rounded-lg p-6 shadow-lg">
           <p className="text-gray-600 mb-4">
-            Project ID: <code className="bg-gray-100 px-2 py-1 rounded">{params.id}</code>
+            Project ID: <code className="bg-gray-100 px-2 py-1 rounded">{id}</code>
           </p>
           
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">

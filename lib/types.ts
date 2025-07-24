@@ -1,5 +1,5 @@
 // Re-export Prisma types for convenience
-export type {
+import type {
   User,
   BuilderProfile,
   Project,
@@ -11,6 +11,19 @@ export type {
   ProjectStatus,
   ReactionType,
 } from './generated/prisma'
+
+export type {
+  User,
+  BuilderProfile,
+  Project,
+  WeeklyUpdate,
+  Follow,
+  Reaction,
+  Comment,
+  UserRole,
+  ProjectStatus,
+  ReactionType,
+}
 
 // Extended types for UI components
 export type UserWithProfile = User & {
@@ -77,5 +90,5 @@ export type CreateWeeklyUpdateData = {
   challenges: string[]
   nextWeekGoals: string[]
   mediaUrls?: string[]
-  metrics?: Record<string, any>
+  metrics?: Record<string, unknown>
 }

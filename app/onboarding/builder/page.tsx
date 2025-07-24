@@ -75,9 +75,45 @@ export default function BuilderOnboardingPage() {
   }
 
   const handleLaunch = async () => {
-    // TODO: Submit to API
-    console.log('Launching project:', formData)
-    router.push('/dashboard')
+    try {
+      const response = await fetch('/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          // Personal Info
+          fullName: formData.fullName,
+          bio: formData.bio,
+          location: formData.location,
+          skills: formData.skills,
+          
+          // Project Info
+          projectName: formData.projectName,
+          tagline: formData.tagline,
+          problemStatement: formData.problemStatement,
+          solution: formData.solution,
+          targetMarket: formData.targetMarket,
+        }),
+      })
+
+      const result = await response.json()
+      
+      if (result.success) {
+        console.log('Project created successfully:', result.project)
+        router.push('/dashboard')
+      } else {
+        console.error('Failed to create project:', result.error)
+        // Still redirect to dashboard for now, but show error
+        alert('Error creating project: ' + result.error)
+        router.push('/dashboard')
+      }
+    } catch (error) {
+      console.error('Error submitting project:', error)
+      // Still redirect to dashboard for now
+      alert('Error submitting project. Please try again.')
+      router.push('/dashboard')
+    }
   }
 
   const addSkill = (skill: string) => {
@@ -166,7 +202,7 @@ export default function BuilderOnboardingPage() {
                     value={formData.fullName}
                     onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                     placeholder="Juan García"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
                   />
                 </div>
 
@@ -179,7 +215,7 @@ export default function BuilderOnboardingPage() {
                     onChange={(e) => setFormData({...formData, bio: e.target.value})}
                     placeholder="I'm a developer passionate about..."
                     rows={3}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
                   />
                 </div>
 
@@ -192,7 +228,7 @@ export default function BuilderOnboardingPage() {
                     value={formData.location}
                     onChange={(e) => setFormData({...formData, location: e.target.value})}
                     placeholder="Mexico City, Mexico"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
                   />
                 </div>
 
@@ -225,7 +261,7 @@ export default function BuilderOnboardingPage() {
                         e.currentTarget.value = ''
                       }
                     }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
                   />
                 </div>
               </div>
@@ -249,7 +285,7 @@ export default function BuilderOnboardingPage() {
                     value={formData.projectName}
                     onChange={(e) => setFormData({...formData, projectName: e.target.value})}
                     placeholder="Enter project name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
                   />
                 </div>
 
@@ -262,7 +298,7 @@ export default function BuilderOnboardingPage() {
                     value={formData.tagline}
                     onChange={(e) => setFormData({...formData, tagline: e.target.value})}
                     placeholder="Briefly describe your project"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
                   />
                 </div>
 
@@ -275,7 +311,7 @@ export default function BuilderOnboardingPage() {
                     onChange={(e) => setFormData({...formData, problemStatement: e.target.value})}
                     placeholder="Describe the problem your project addresses"
                     rows={3}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
                   />
                 </div>
 
@@ -288,7 +324,7 @@ export default function BuilderOnboardingPage() {
                     onChange={(e) => setFormData({...formData, solution: e.target.value})}
                     placeholder="How will you solve this problem?"
                     rows={3}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
                   />
                 </div>
 
@@ -301,7 +337,7 @@ export default function BuilderOnboardingPage() {
                     value={formData.targetMarket}
                     onChange={(e) => setFormData({...formData, targetMarket: e.target.value})}
                     placeholder="Who are your ideal users?"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
                   />
                 </div>
 
@@ -416,7 +452,7 @@ export default function BuilderOnboardingPage() {
                         e.currentTarget.value = ''
                       }
                     }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
                   />
                 </div>
 
@@ -427,7 +463,7 @@ export default function BuilderOnboardingPage() {
                   <select
                     value={formData.deadline}
                     onChange={(e) => setFormData({...formData, deadline: e.target.value})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
                   >
                     <option value="">Select Deadline</option>
                     <option value="1-week">1 Week</option>
